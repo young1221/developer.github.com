@@ -1565,7 +1565,7 @@ module GitHub
       "description" => "Deploy request from hubot",
     }
 
-    STATUS = {
+    SIMPLE_STATUS = {
       "created_at" => "2012-07-20T01:19:13Z",
       "updated_at" => "2012-07-20T01:19:13Z",
       "state" => "success",
@@ -1573,7 +1573,23 @@ module GitHub
       "description" => "Build has completed successfully",
       "id" => 1,
       "url" => "https://api.github.com/repos/octocat/example/statuses/1",
+      "context" => "continuous-integration/jenkins"
+    }
+
+    STATUS = SIMPLE_STATUS.merge(
       "creator" => USER
+    )
+
+    COMBINED_STATUS = {
+      "state" => "success",
+      "name"  => "octocat/Hello-World",
+      "sha"   => COMMIT["sha"],
+      "statuses" => [
+        SIMPLE_STATUS.merge("context" => "continuous-integration/jenkins"),
+        SIMPLE_STATUS.merge("context" => "security/brakeman")
+      ],
+      "commit_url" => "https://api.github.com/repos/octocat/Hello-World/#{COMMIT["sha"]}",
+      "repository_url" => "https://api.github.com/repos/octocat/Hello-World"
     }
 
     META = {
