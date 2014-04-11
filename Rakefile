@@ -1,5 +1,3 @@
-require 'html/proofer'
-
 task :default => [:test]
 
 desc "Compile the site"
@@ -9,6 +7,7 @@ end
 
 desc "Test the output"
 task :test => [:clean, :remove_output_dir, :compile] do
+  require 'html/proofer'
   HTML::Proofer.new("./output").run
 end
 
