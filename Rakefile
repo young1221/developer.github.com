@@ -6,7 +6,7 @@ task :compile do
 end
 
 desc "Test the output"
-task :test => [:clean, :remove_output_dir, :compile] do
+task :test => [:remove_output_dir, :compile] do
   require 'html/proofer'
   HTML::Proofer.new("./output").run
 end
@@ -31,7 +31,7 @@ def commit_message
 end
 
 desc "Publish to http://developer.github.com"
-task :publish => [:clean, :remove_output_dir] do
+task :publish => [:remove_output_dir] do
   mesg = commit_message
 
   sh "nanoc compile"
