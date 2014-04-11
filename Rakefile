@@ -22,9 +22,13 @@ def commit_message
     ':sailboat:', ':gift:', ':ship:', ':shipit:', ':sparkles:', ':rainbow:']
   default_message = "P U B L I S H #{publish_emojis.sample}"
 
-  print "Enter a commit message (default: '#{default_message}'): "
-  STDOUT.flush
-  mesg = STDIN.gets.chomp.strip
+  if STDIN.tty?
+    print "Enter a commit message (default: '#{default_message}'): "
+    STDOUT.flush
+    mesg = STDIN.gets.chomp.strip
+  else
+    mesg =''
+  end
 
   mesg = default_message if mesg == ''
   mesg.gsub(/'/, '') # Allow this to be handed off via -m '#{message}'
