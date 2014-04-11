@@ -1,5 +1,3 @@
-require "rubygems"
-require 'nanoc3/tasks'
 require 'html/proofer'
 
 task :default => [:test]
