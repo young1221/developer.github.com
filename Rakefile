@@ -39,7 +39,6 @@ task :publish => [:remove_output_dir] do
     system "git checkout gh-pages"
     system "rm -rf *"
     system "mv #{tmp}/* ."
-    message = "Site updated at #{Time.now.utc}"
     system "git add ."
     system "git commit -am #{mesg.shellescape}"
     system "git push origin gh-pages --force"
