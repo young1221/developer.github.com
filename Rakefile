@@ -34,7 +34,8 @@ def commit_message
 end
 
 desc "Publish to http://developer.github.com"
-task :publish => [:clean, :remove_output_dir] do
+task :publish, [:skip] => [:clean, :remove_output_dir] do |t, args|
+  puts args
   mesg = commit_message
 
   sh "nanoc compile"
