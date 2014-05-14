@@ -1,5 +1,4 @@
 require 'nanoc3/tasks'
-require 'html/proofer'
 
 task :default => [:test]
 
@@ -10,6 +9,7 @@ end
 
 desc "Test the output"
 task :test => [:clean, :remove_output_dir, :compile] do
+  require 'html/proofer'
   HTML::Proofer.new("./output").run
 end
 
@@ -24,11 +24,13 @@ def commit_message
     ':sailboat:', ':gift:', ':ship:', ':shipit:', ':sparkles:', ':rainbow:']
   default_message = "P U B L I S H #{publish_emojis.sample}"
 
-  print "Enter a commit message (default: '#{default_message}'): "
-  STDOUT.flush
-  mesg = STDIN.gets.chomp.strip
+  unless ENV["no_commit_msg"]
+    print "Enter a commit message (default: '#{default_message}'): "
+    STDOUT.flush
+    mesg = STDIN.gets.chomp.strip
+  end
 
-  mesg = default_message if mesg == ''
+  mesg = default_message if mesg.nil? || mesg == ''
   mesg.gsub(/'/, '') # Allow this to be handed off via -m '#{message}'
 end
 
