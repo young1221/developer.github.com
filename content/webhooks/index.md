@@ -22,7 +22,7 @@ can configure hooks programmatically [via the API](/v3/repos/hooks/).
 A service is basically the name used to refer to a hook that has configuration
 settings, a list of available events, and default events.
 
-> For instance, the
+For instance, the
 [email](https://github.com/github/github-services/blob/master/lib/services/email.rb)
 service is a built-in GitHub service that will send event [payloads](#payloads)
 to, at most, two email addresses.  It will trigger for the `push`
@@ -33,7 +33,7 @@ A number of services have been integrated through the open source
 [creating a hook](/webhooks/creating/), the `:name` parameter must refer to one of
 these services.  A generic
 [Web](https://github.com/github/github-services/blob/master/lib/services/web.rb)
-service is available that can configured to trigger for any of the available
+service is available that can be configured to trigger for any of the available
 [events](#events).
 
 Documentation for all available service hooks can be found in the
@@ -51,9 +51,17 @@ want to trigger.
 
 For example, the
 [Web](https://github.com/github/github-services/blob/master/lib/services/web.rb)
-service listens for all events, while the
+service supports listening for all events, while the
 [IRC](https://github.com/github/github-services/blob/master/lib/services/irc.rb)
-service can only listen for `push`, `issues`, and `pull_request` events.
+service can only listen for `push`, `issues`, `pull_request`, `commit_comment`,
+`pull_request_review_comment`, and `issue_comment` events.
+
+Each service also has a set of default events for which it listens if it isn't 
+configured. For example, the Web service listens only for `push` events by 
+default, while the IRC service listens on `push` and `pull_requests` events.
+Service hooks set up via the repository settings UI listen only for the default
+set of events, but can be
+[re-configured via the API](/v3/repos/hooks/#edit-a-hook).
 
 The available events are:
 
@@ -84,8 +92,61 @@ Name | Description
 
 The payloads for all hooks mirror [the payloads for the Event
 types](/v3/activity/events/types/), with the exception of [the original `push`
-event](http://developer.github.com/v3/activity/events/types/#pushevent),
+event](https://developer.github.com/v3/activity/events/types/#pushevent),
 which has a more detailed payload.
+
+A full payload will also show the user who performed the event (`sender`),
+the repository (`repository`), and the organization (`organization`) if applicable.
+
+#### Delivery headers
+
+HTTP requests made to your server's endpoint will contain several special
+headers:
+
+Header | Description
+-------|-------------|
+`X-Github-Event`| Name of the [event](#events) that triggered this delivery.
+`X-Hub-Signature`| HMAC hex digest of the payload, using [the hook's `secret`](/v3/repos/hooks/#create-a-hook) as the key (if configured).
+`X-Github-Delivery`| Unique ID for this delivery.
+
+Also, the `User-Agent` for the requests will have the prefix `GitHub Hookshot`.
+
+#### Example delivery
+
+<pre class="terminal">
+POST /payload HTTP/1.1
+
+Host: localhost:4567
+X-Github-Delivery: 72d3162e-cc78-11e3-81ab-4c9367dc0958
+User-Agent: GitHub Hookshot 044aadd
+Content-Type: application/json
+Content-Length: 6615
+X-Github-Event: issue
+
+{
+  "action": "opened",
+  "issue": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/issues/1347",
+    "number": 1347,
+    ...
+  },
+  "repository" : {
+    "id": 1296269,
+    "full_name": "octocat/Hello-World",
+    "owner": {
+      "login": "octocat",
+      "id": 1,
+      ...
+    },
+    ...
+  },
+  "sender": {
+    "login": "octocat",
+    "id": 1,
+    ...
+  }
+}
+</pre>
 
 ## Wildcard Event
 
