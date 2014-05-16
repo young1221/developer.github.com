@@ -161,8 +161,11 @@ module GitHub
       "plan"                => {
         "name"          => "Medium",
         "space"         => 400,
-        "collaborators" => 10,
-        "private_repos" => 20
+        "private_repos" => 20,
+        "collaborators" => 0 # Plans now allow *unlimited* collaborators, so
+                             # this attribute is deprecated. However, the beta
+                             # and v3 media types need to continue to return an
+                             # integer value for backwards compatibility.
       }
     })
 
@@ -206,7 +209,6 @@ module GitHub
       "watchers_count"    => 80,
       "size"              => 108,
       "default_branch"    => 'master',
-      "master_branch"     => 'master',
       "open_issues_count" => 0,
       "has_issues"        => true,
       "has_wiki"          => true,
@@ -313,6 +315,7 @@ module GitHub
     "comment_count" => 0
   },
   "url" => "https://api.github.com/repos/octocat/Hello-World/commits/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+  "html_url" => "https://github.com/octocat/Hello-World/commit/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
   "comments_url" => "https://api.github.com/repos/octocat/Hello-World/commits/7fd1a60b01f91b314f59955a4e4d4e80d8edf11d/comments",
   "author" => {
     "login" => "octocat",
@@ -446,6 +449,8 @@ module GitHub
     COMMIT = {
       "url" => "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
       "sha" => "6dcb09b5b57875f334f61aebed695e2e4193db5e",
+      "html_url" => "https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e",
+      "comments_url" => "https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments",
       "commit" => {
         "url" => "https://api.github.com/repos/octocat/Hello-World/git/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e",
         "author" => {
@@ -463,6 +468,7 @@ module GitHub
           "url" => "https://api.github.com/repos/octocat/Hello-World/tree/6dcb09b5b57875f334f61aebed695e2e4193db5e",
           "sha" => "6dcb09b5b57875f334f61aebed695e2e4193db5e",
         },
+        "comment_count" => 0,
       },
       "author" => USER,
       "committer" => USER,
@@ -769,6 +775,7 @@ module GitHub
 
     ISSUE_SEARCH_V3_RESULTS = {
       "total_count" => 280,
+      "incomplete_results" => false,
       "items" => [
         {
           "url" => "https://api.github.com/repos/batterseapower/pinyin-toolkit/issues/132",
@@ -896,6 +903,7 @@ module GitHub
 
     REPO_SEARCH_V3_RESULTS = {
       "total_count" => 40,
+      "incomplete_results" => false,
       "items" => [
         {
           "id" => 3081286,
@@ -969,6 +977,7 @@ module GitHub
 
     CODE_SEARCH_V3_RESULTS = {
       "total_count" => 7,
+      "incomplete_results" => false,
       "items" => [
         {
           "name" => "classes.js",
@@ -1105,6 +1114,7 @@ module GitHub
 
     USER_SEARCH_V3_RESULTS = {
       "total_count" => 12,
+      "incomplete_results" => false,
       "items" => [
         {
           "login" => "mojombo",
@@ -1207,20 +1217,21 @@ module GitHub
 
     GIST_FILE = {
       "ring.erl" => {
-        "size"     => 932,
-        "raw_url"  => "https://gist.githubusercontent.com/raw/365370/8c4d2d43d178df44f4c03a7f2ac0ff512853564e/ring.erl",
-        "type"     => "text/plain",
-        "language" => "Erlang"
+        "size"      => 932,
+        "raw_url"   => "https://gist.githubusercontent.com/raw/365370/8c4d2d43d178df44f4c03a7f2ac0ff512853564e/ring.erl",
+        "type"      => "text/plain",
+        "language"  => "Erlang"
       }
     }
 
     GIST_FILE_WITH_CONTENT = {
       "ring.erl" => {
-        "size"     => 932,
-        "raw_url"  => "https://gist.githubusercontent.com/raw/365370/8c4d2d43d178df44f4c03a7f2ac0ff512853564e/ring.erl",
-        "type"     => "text/plain",
-        "language" => "Erlang",
-        "content"  => "contents of gist"
+        "size"      => 932,
+        "raw_url"   => "https://gist.githubusercontent.com/raw/365370/8c4d2d43d178df44f4c03a7f2ac0ff512853564e/ring.erl",
+        "type"      => "text/plain",
+        "language"  => "Erlang",
+        "truncated" => false,
+        "content"   => "contents of gist"
       }
     }
 
@@ -1231,7 +1242,8 @@ module GitHub
       "id"           => "1",
       "description"  => "description of gist",
       "public"       => true,
-      "user"         => USER,
+      "owner"        => USER,
+      "user"         => nil,
       "files"        => GIST_FILE,
       "comments"     => 0,
       "comments_url" => "https://api.github.com/gists/#{SecureRandom.hex(10)}/comments/",
