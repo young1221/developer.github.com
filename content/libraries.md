@@ -12,7 +12,7 @@ many flavors</h1>
     <li><span>Obj-C</span><a href="https://github.com/octokit/octokit.objc">octokit.objc</a></li>
     <li><span>.NET</span><a href="https://github.com/octokit/octokit.net">octokit.net</a></li>
   </ul>
-  <img src="/shared/images/gundamcat.png" class="gundamcat" alt="The Gundamcat" />
+  <img src="/images/gundamcat.png" class="gundamcat" alt="The Gundamcat" />
 </div>
 
 # Third-party libraries
@@ -26,12 +26,6 @@ many flavors</h1>
 [irongithub]: https://github.com/in2bits/IronGitHub
 [csharp]: https://github.com/sgrassie/csharp-github-api
 [fsharp]: https://github.com/saxonmatt/FSharp.GitHubApi
-
-## ActionScript
-
-* [ActionScript GitHub API][as3]
-
-[as3]: https://github.com/cbrammer/api-github-as3
 
 ## Clojure
 
