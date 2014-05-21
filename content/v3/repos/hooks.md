@@ -33,7 +33,9 @@ or the [PubSubHubbub API](#pubsubhubbub).
 
     POST /repos/:owner/:repo/hooks
 
-### Parameter
+**Note**: Services other than the `web` service can have at most one hook configured for a repository. Creating hooks for a service that already has a hook configured will [update the existing hook](#edit-a-hook). The `web` service can have multiple hooks configured for a repository.
+
+### Parameters
 
 Name | Type | Description
 -----|------|--------------
@@ -75,7 +77,7 @@ Here's how you can setup a hook that posts payloads in JSON format:
 
     PATCH /repos/:owner/:repo/hooks/:id
 
-### Parameter
+### Parameters
 
 Name | Type | Description
 -----|------|--------------
@@ -143,7 +145,7 @@ Name | Description
 -----|-----------|
 `X-GitHub-Event` | The [event type](/v3/activity/events/types/) that was triggered.
 `X-GitHub-Delivery` | A [guid][guid] to identify the payload and event being sent.
-`X-GitHub-Signature` | The value of this header is computed as the HMAC hex digest of the body, using the `secret` config option as the key.
+`X-Hub-Signature` | The value of this header is computed as the HMAC hex digest of the body, using the `secret` config option as the key.
 
 ## PubSubHubbub
 
