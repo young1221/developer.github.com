@@ -8,13 +8,12 @@
   <title>Webhooks | GitHub API</title>
   <link rel="alternate" type="application/atom+xml" title="API Changes" href="/changes.atom" />
   <link href="/css/reset.css" rel="stylesheet" type="text/css" />
-  <link href="/css/960.css" rel="stylesheet" type="text/css" />
-  <link href="/css/uv_active4d.css" rel="stylesheet" type="text/css" />
-  <link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
-  <link href="/shared/css/pygments.css" media="screen" rel="stylesheet" type="text/css">
-  <script src="/shared/js/jquery.js" type="text/javascript"></script>
-  <script src="/shared/js/documentation.js" type="text/javascript"></script>
+  <link href="/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/css/pygments.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="/js/documentation.js" type="text/javascript"></script>
 </head>
+
 
 <body class="api">
   <div id="header-wrapper">
@@ -73,20 +72,18 @@ can configure hooks programmatically <a href="/v3/repos/hooks/">via the API</a>.
 <p>A service is basically the name used to refer to a hook that has configuration
 settings, a list of available events, and default events.</p>
 
-<blockquote>
-  <p>For instance, the
+<p>For instance, the
 <a href="https://github.com/github/github-services/blob/master/lib/services/email.rb">email</a>
 service is a built-in GitHub service that will send event <a href="#payloads">payloads</a>
 to, at most, two email addresses.  It will trigger for the <code>push</code>
 event by default and supports the <code>public</code> event type as well.</p>
-</blockquote>
 
 <p>A number of services have been integrated through the open source
 <a href="https://github.com/github/github-services">github-services</a> project.  When
 <a href="/webhooks/creating/">creating a hook</a>, the <code>:name</code> parameter must refer to one of
 these services.  A generic
 <a href="https://github.com/github/github-services/blob/master/lib/services/web.rb">Web</a>
-service is available that can configured to trigger for any of the available
+service is available that can be configured to trigger for any of the available
 <a href="#events">events</a>.</p>
 
 <p>Documentation for all available service hooks can be found in the
@@ -103,9 +100,17 @@ want to trigger.</p>
 
 <p>For example, the
 <a href="https://github.com/github/github-services/blob/master/lib/services/web.rb">Web</a>
-service listens for all events, while the
+service supports listening for all events, while the
 <a href="https://github.com/github/github-services/blob/master/lib/services/irc.rb">IRC</a>
-service can only listen for <code>push</code>, <code>issues</code>, and <code>pull_request</code> events.</p>
+service can only listen for <code>push</code>, <code>issues</code>, <code>pull_request</code>, <code>commit_comment</code>,
+<code>pull_request_review_comment</code>, and <code>issue_comment</code> events.</p>
+
+<p>Each service also has a set of default events for which it listens if it isn’t 
+configured. For example, the Web service listens only for <code>push</code> events by 
+default, while the IRC service listens on <code>push</code> and <code>pull_requests</code> events.
+Service hooks set up via the repository settings UI listen only for the default
+set of events, but can be
+<a href="/v3/repos/hooks/#edit-a-hook">re-configured via the API</a>.</p>
 
 <p>The available events are:</p>
 
@@ -132,12 +137,12 @@ service can only listen for <code>push</code>, <code>issues</code>, and <code>pu
       <td>Any time a Branch or Tag is deleted.</td>
     </tr>
 <tr>
-<td><code>deployment_status</code></td>
-      <td>Any time a deployment for the Repository has a status update from the API.</td>
-    </tr>
-<tr>
 <td><code>deployment</code></td>
       <td>Any time a Repository has a new deployment created from the API.</td>
+    </tr>
+<tr>
+<td><code>deployment_status</code></td>
+      <td>Any time a deployment for the Repository has a status update from the API.</td>
     </tr>
 <tr>
 <td><code>fork</code></td>
@@ -200,9 +205,75 @@ service can only listen for <code>push</code>, <code>issues</code>, and <code>pu
 </table><h3 id="payloads">Payloads</h3>
 
 <p>The payloads for all hooks mirror <a href="/v3/activity/events/types/">the payloads for the Event
-types</a>, with the exception of <a href="http://developer.github.com/v3/activity/events/types/#pushevent">the original <code>push</code>
+types</a>, with the exception of <a href="https://developer.github.com/v3/activity/events/types/#pushevent">the original <code>push</code>
 event</a>,
 which has a more detailed payload.</p>
+
+<p>A full payload will also show the user who performed the event (<code>sender</code>),
+the repository (<code>repository</code>), and the organization (<code>organization</code>) if applicable.</p>
+
+<h4 id="delivery-headers">Delivery headers</h4>
+
+<p>HTTP requests made to your server’s endpoint will contain several special
+headers:</p>
+
+<table>
+<thead><tr>
+<th>Header</th>
+      <th>Description</th>
+    </tr></thead>
+<tbody>
+<tr>
+<td><code>X-Github-Event</code></td>
+      <td>Name of the <a href="#events">event</a> that triggered this delivery.</td>
+    </tr>
+<tr>
+<td><code>X-Hub-Signature</code></td>
+      <td>HMAC hex digest of the payload, using <a href="/v3/repos/hooks/#create-a-hook">the hook’s <code>secret</code></a> as the key (if configured).</td>
+    </tr>
+<tr>
+<td><code>X-Github-Delivery</code></td>
+      <td>Unique ID for this delivery.</td>
+    </tr>
+</tbody>
+</table><p>Also, the <code>User-Agent</code> for the requests will have the prefix <code>GitHub Hookshot</code>.</p>
+
+<h4 id="example-delivery">Example delivery</h4>
+
+<pre class="terminal">
+POST /payload HTTP/1.1
+
+Host: localhost:4567
+X-Github-Delivery: 72d3162e-cc78-11e3-81ab-4c9367dc0958
+User-Agent: GitHub Hookshot 044aadd
+Content-Type: application/json
+Content-Length: 6615
+X-Github-Event: issue
+
+{
+  "action": "opened",
+  "issue": {
+    "url": "https://api.github.com/repos/octocat/Hello-World/issues/1347",
+    "number": 1347,
+    ...
+  },
+  "repository" : {
+    "id": 1296269,
+    "full_name": "octocat/Hello-World",
+    "owner": {
+      "login": "octocat",
+      "id": 1,
+      ...
+    },
+    ...
+  },
+  "sender": {
+    "login": "octocat",
+    "id": 1,
+    ...
+  }
+}
+</pre>
 
 <h2 id="wildcard-event">Wildcard Event</h2>
 
