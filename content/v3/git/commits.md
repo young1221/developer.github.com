@@ -11,6 +11,8 @@ title: Git Commits | GitHub API
 
     GET /repos/:owner/:repo/git/commits/:sha
 
+ARBITRARY CHANGE
+
 ### Response
 
 <%= headers 200 %>
