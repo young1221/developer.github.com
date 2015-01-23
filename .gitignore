@@ -1,1 +1,9 @@
-a_big_file
+output
+tmp
+.DS_Store
+.bundle
+bin
+crash.log
+/vendor/gems/
+/bin/
+/.bundle/
